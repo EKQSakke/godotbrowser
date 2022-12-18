@@ -96,7 +96,7 @@ func (m model) View() string {
 		}
 
 		// Render the row
-		s += fmt.Sprintf("%s %s\n", cursor, choice)
+		s += fmt.Sprintf("%s %s\n", cursor, choice.ToString())
 	}
 
 	// The footer

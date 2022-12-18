@@ -1,11 +1,14 @@
 package main
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 type model struct {
 	desc    string
 	choices []row // items on the to-do list
-	cursor  int      // which to-do list item our cursor is pointing at
+	cursor  int   // which to-do list item our cursor is pointing at
 }
 
 func InitialModel(input string) model {
@@ -19,20 +22,35 @@ func InitialModel(input string) model {
 	}
 
 	return model{
-		desc: input,
+		desc:    input,
 		choices: validInputs,
 	}
 }
 
 func toRow(input string) row {
-	return row{
+	splitInput := strings.Split(input, ">")
+	var formattedInput []string
 
+	for _, inputRow := range splitInput {
+		line := strings.Split(inputRow, "<")[0]
+		formattedInput = append(formattedInput, line)
+	}
+	
+	return row{
+		href:         formattedInput[3] + "/",
+		text:         formattedInput[3],
+		dateModified: formattedInput[6],
+		itemType:     formattedInput[10],
 	}
 }
 
 type row struct {
-	href string
-	text string
+	href         string
+	text         string
 	dateModified string
-	itemType string
+	itemType     string
+}
+
+func (r row) ToString() string {
+	return fmt.Sprintf("%s %s %s %s", r.href, r.text, r.dateModified, r.itemType)
 }
