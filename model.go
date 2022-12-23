@@ -27,6 +27,10 @@ func InitialModel(input string) model {
 	}
 }
 
+func ResetModelsTo(m *model, input string) {
+	*m = InitialModel(input)
+}
+
 func toRow(input string) row {
 	splitInput := strings.Split(input, ">")
 	var formattedInput []string
@@ -35,7 +39,7 @@ func toRow(input string) row {
 		line := strings.Split(inputRow, "<")[0]
 		formattedInput = append(formattedInput, line)
 	}
-	
+
 	return row{
 		href:         formattedInput[3] + "/",
 		text:         formattedInput[3],

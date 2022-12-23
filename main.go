@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	desc := request()
+	desc := request("")
 	p := tea.NewProgram(InitialModel(desc))
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("Alas, there's been an error: %v", err)
@@ -20,8 +20,9 @@ func main() {
 	}
 }
 
-func request() string {
-	resp, err := http.Get("https://downloads.tuxfamily.org/godotengine/4.0/")
+func request(input string) string {
+	print(input)
+	resp, err := http.Get("https://downloads.tuxfamily.org/godotengine/4.0/" + input)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -65,15 +66,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.cursor++
 			}
 
-			// The "enter" key and the spacebar (a literal space) toggle
-			// the selected state for the item that the cursor is pointing at.
-			// case "enter", " ":
-			// 	_, ok := m.selected[m.cursor]
-			// 	if ok {
-			// 		delete(m.selected, m.cursor)
-			// 	} else {
-			// 		m.selected[m.cursor] = struct{}{}
-			// 	}
+		// The "enter" key and the spacebar (a literal space) toggle
+		// the selected state for the item that the cursor is pointing at.
+		case "enter", " ":
+			ResetModelsTo(&m, request(m.choices[m.cursor].href))
 		}
 	}
 
@@ -84,7 +80,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m model) View() string {
 	// The header
-	s := "What do we have here?"
+	s := "What do we have here?\n\n"
 
 	// Iterate over our choices
 	for i, choice := range m.choices {
