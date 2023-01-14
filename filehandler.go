@@ -31,7 +31,7 @@ func Download(url string, fileName string) error {
 
 	// Write the body to file
 	_, err = io.Copy(out, resp.Body)
-	if (err != nil) {
+	if err != nil {
 		return err
 	}
 

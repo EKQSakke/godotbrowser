@@ -18,7 +18,8 @@ func InitialModel(input string, currentUrl string, errorMsg string) model {
 	var validInputs []row
 
 	for _, inputRow := range splitInput {
-		if strings.Contains(inputRow, "<tr>") {
+
+		if strings.Contains(inputRow, "<tr>") && !strings.Contains(inputRow, "Name") {
 			validInputs = append(validInputs, toRow(inputRow))
 		}
 	}
