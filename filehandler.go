@@ -7,6 +7,11 @@ import (
 )
 
 func Download(url string, fileName string) error {
+	tempFolder := "C:/temp"
+	if _, err := os.Stat(tempFolder); os.IsNotExist(err) {
+		os.Mkdir(tempFolder, os.ModePerm)
+	}
+
 	filepath := "C:/temp/" + fileName
 	// Get the data
 	resp, err := http.Get(url)
