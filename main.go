@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"io"
 	"log"
@@ -11,9 +12,11 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+const baseUrl = "https://downloads.tuxfamily.org/godotengine/4.0/";
+
 func main() {
-	desc := request("")
-	p := tea.NewProgram(InitialModel(desc))
+	desc := request(baseUrl)
+	p := tea.NewProgram(InitialModel(desc, baseUrl, ""))
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("Alas, there's been an error: %v", err)
 		os.Exit(1)
@@ -22,7 +25,7 @@ func main() {
 
 func request(input string) string {
 	print(input)
-	resp, err := http.Get("https://downloads.tuxfamily.org/godotengine/4.0/" + input)
+	resp, err := http.Get(input)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -69,7 +72,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// The "enter" key and the spacebar (a literal space) toggle
 		// the selected state for the item that the cursor is pointing at.
 		case "enter", " ":
-			ResetModelsTo(&m, request(m.choices[m.cursor].href))
+			if strings.Contains(m.choices[m.cursor].href, "Name") || strings.Contains(m.choices[m.cursor].href, "Parent") {
+				lastHref := strings.Split(m.currentUrl, "/")
+				m.currentUrl = strings.TrimSuffix(m.currentUrl, lastHref[len(lastHref)-2] + "/");
+				ResetModelsTo(&m, request(m.currentUrl), m.currentUrl, ":" + lastHref[len(lastHref)-2] + "/")
+			} else {
+				ResetModelsTo(&m, request(m.currentUrl + m.choices[m.cursor].href), m.currentUrl + m.choices[m.cursor].href, m.choices[m.cursor].href)
+			}
 		}
 	}
 
@@ -80,7 +89,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m model) View() string {
 	// The header
-	s := "What do we have here?\n\n"
+	s := fmt.Sprintf("%s \n", m.currentUrl)
+	s += fmt.Sprintf("%s \n\n", m.errorMsg)
 
 	// Iterate over our choices
 	for i, choice := range m.choices {

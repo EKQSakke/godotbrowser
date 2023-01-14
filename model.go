@@ -6,12 +6,14 @@ import (
 )
 
 type model struct {
-	desc    string
-	choices []row // items on the to-do list
-	cursor  int   // which to-do list item our cursor is pointing at
+	currentUrl string
+	desc       string
+	choices    []row // items on the to-do list
+	cursor     int   // which to-do list item our cursor is pointing at
+	errorMsg   string
 }
 
-func InitialModel(input string) model {
+func InitialModel(input string, currentUrl string, errorMsg string) model {
 	splitInput := strings.Split(input, "\n")
 	var validInputs []row
 
@@ -22,13 +24,15 @@ func InitialModel(input string) model {
 	}
 
 	return model{
-		desc:    input,
-		choices: validInputs,
+		desc:       input,
+		choices:    validInputs,
+		currentUrl: currentUrl,
+		errorMsg:   errorMsg,
 	}
 }
 
-func ResetModelsTo(m *model, input string) {
-	*m = InitialModel(input)
+func ResetModelsTo(m *model, input string, currentUrl string, errorMsg string) {
+	*m = InitialModel(input, currentUrl, errorMsg)
 }
 
 func toRow(input string) row {
