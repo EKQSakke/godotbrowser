@@ -72,11 +72,19 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// The "enter" key and the spacebar (a literal space) toggle
 		// the selected state for the item that the cursor is pointing at.
 		case "enter", " ":
+			// Parent directory
 			if strings.Contains(m.choices[m.cursor].href, "Name") || strings.Contains(m.choices[m.cursor].href, "Parent") {
 				lastHref := strings.Split(m.currentUrl, "/")
 				m.currentUrl = strings.TrimSuffix(m.currentUrl, lastHref[len(lastHref)-2] + "/");
-				ResetModelsTo(&m, request(m.currentUrl), m.currentUrl, ":" + lastHref[len(lastHref)-2] + "/")
-			} else {
+				ResetModelsTo(&m, request(m.currentUrl), m.currentUrl, "")
+			} else if m.choices[m.cursor].itemType == "application/zip" {
+				m.errorMsg = "Downloading"
+				m.View()
+				Download(m.currentUrl + m.choices[m.cursor].href, m.choices[m.cursor].text)
+				m.errorMsg = "Downloaded: " + m.choices[m.cursor].text
+				m.View()
+				} else {
+				// Child directory
 				ResetModelsTo(&m, request(m.currentUrl + m.choices[m.cursor].href), m.currentUrl + m.choices[m.cursor].href, m.choices[m.cursor].href)
 			}
 		}
@@ -110,4 +118,25 @@ func (m model) View() string {
 
 	// Send the UI for rendering
 	return s
+}
+
+func Download(url string, fileName string) error {
+	filepath := "C:/temp/" + fileName
+	// Get the data
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	// Create the file
+	out, err := os.Create(filepath)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	// Write the body to file
+	_, err = io.Copy(out, resp.Body)
+	return err
 }
